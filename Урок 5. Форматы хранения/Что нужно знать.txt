@@ -1,0 +1,11 @@
+Column-oriented for analist
+Row-oriented for OLTP
+
+Avro - для большой нагрузки по записи, например для Apache Kafka
+Parquest - если у вас любят Parquest
+ORC - если у вас любят ORC
+CSV - если нужна простая интеграция
+
+Есть диаграмма < 1.JPG > Что и когда лучше использовать.
+
+Надо дополнить.
