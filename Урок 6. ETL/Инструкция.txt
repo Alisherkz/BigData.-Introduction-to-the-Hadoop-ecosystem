@@ -1,0 +1,73 @@
+							
+
+
+							!Надо дополнить!
+
+
+
+
+
+Создать выгрузку с помощью sqoop или flume
+
+SQOOP 
+Получаем список таблиц, которые созданы в postgres (нужно правильно указать ip, сейчас указан localhost)
+sqoop list-tables --connect jdbc:postgresql://localhost/pg_db --username exporter --password exporter_pass
+
+Создаем таблицу в hive, куда собираемся выгружать данные
+CREATE TABLE lesson6_9.character(
+charid string,
+charname string,
+abbrev string,
+description string,
+speechcount int)
+
+Запускаем импорт:
+sqoop import --connect jdbc:postgresql://node3.novalocal/pg_db --username exporter --password exporter_pass --table character --hive-import --hive-database lesson6_9 --hive-table character
+
+FLUME
+
+Создаем shell-скрипт и сохраняем в файл heartbeat.sh
+START_DATE=date
+COUNT=0
+while [ true ]
+do
+NOW_DATE=date
+echo I live for $(( (date -d "$NOW_DATE" +%s - date -d "$START_DATE" +%s) )) seconds\;(date -d "$START_DATE" +%Y-%m-%d:%H.%M.%S)\;(date -d "$START_DATE" +%Y-%m-%d:%H.%M.%S)\;I did it $(( $COUNT + 1 )) times
+COUNT=$(( $COUNT + 1 ))
+sleep 10
+done
+
+Создаем конфигурационный файл, прафильное указываем пути до shell-скрипта и hdfs-папки # Naming the components on the current agent StudentFlume.sources = Exec
+StudentFlume.channels = MemChannel StudentFlume.sinks = MySink
+Describing/Configuring the source
+StudentFlume.sources.Exec.type = exec
+StudentFlume.sources.Exec.command = /home/centos/flm/heartbeat.sh
+
+Describing/Configuring the hdfs sink
+StudentFlume.sinks.MySink.type=hdfs
+StudentFlume.sinks.MySink.hdfs.path=/user/centos/flm
+StudentFlume.sinks.MySink.hdfs.fileSuffix=.log
+
+Describing/Configuring the channel
+StudentFlume.channels.MemChannel.type = memory
+StudentFlume.channels.MemChannel.capacity=10000000
+StudentFlume.channels.MemChannel.transactionCapacity = 100
+
+Bind the source and sink to the channel
+StudentFlume.sources.Exec.channels = MemChannel
+StudentFlume.sinks.MySink.channel = MemChannel
+
+Запускаем flume (нужно правильно указать пути до конфигурационной папки и конфигурационного файла)
+/opt/apache-flume/bin/flume-ng agent --conf /home/admin/flm/ --conf-file /home/admin/flm/flm.conf --name StudentFlume -Dflume.root.logger=INFO,console
+
+Создаем таблицы в hive (найдите ошибку в скрипте, чтобы данные сразу расскладывались по колонкам, укажите правильно location)
+create external table lesson10_6.flm_logs (first string, second string, third string, fourth string, fifth string)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS INPUTFORMAT 'org.apache.hadoop.mapred.SequenceFileInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat'
+location '/user/centos/flm'
+
+;
+
+Проверяем результат select * from flm_logs
