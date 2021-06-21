@@ -1,0 +1,42 @@
+Pig vs Hive & Impala
+
+На сегодняшний день Pig - ом не пользуется
+причины: свое образный скрипт, он не похож на Scala, Python, Java или SQL
+На этом он все.
+
+Hive & Impala
+
+Hive есть язык он похож на SQL называется Hive SQL, есть графические управление то есть можно подключиться
+через Hivew Web Interface, JDBC/ODBC Driver, Hive CLI, Thrift Clients
+
+Архитектура Hive
+1. Hive
+Hive SQL
+2. Clients
+Hive Web Interface
+JDBC/ODBC Driver
+Hive CLI
+Thift Clients
+3. Hive Services
+Metastore
+Hive Driver
+Hive Server 2
+---------------?>
+Compiler
+Optimizer
+Executer
+4.Hadoop Cluster
+Yarn
+NodeManager
+
+
+Hivew Web Interface - подключаеться через веб
+JDBC/ODBC Driver - это програмный пакет который нужно установить в комп и подключиться
+JDBC - Использует язык Java
+ODBC - Использует язык Python C, C++ и др
+
+Записанный запрос в части Clients отправляется Hive Services / Hive Server 2, затем отправляет запрос в Compiler
+
+В Hive сохранить текстовые документы и т.д. и определить в колонках трудно по этому создали Metastore
+Metastore - это таблица или схема где хранятся описание данных который лежат в HDFS, то есть там хранится тип, имя колонки и называние таблицы
+Metastore один из важных вещь, если отвалится Metastore то отвалится и Hive

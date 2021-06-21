@@ -1,0 +1,50 @@
+create external table lesson4_10.customers
+(customer_id string,
+customer_unique_id string,
+customer_zip_code_prefix string,
+customer_city string,
+customer_state string)
+
+ROW FORMAT serde 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+
+WITH SERDEPROPERTIES ('field.delim' = ',')
+
+location "/user/hive/warehouse/lesson4_10.db/customers"
+
+tblproperties ("skip.header.line.count"="1")
+;
+
+ALTER TABLE lesson4_10.customers SET TBLPROPERTIES ('skip.header.line.count' = '1');
+
+select * from lesson4_10.customers ;
+
+drop table lesson4_10.customers;
+
+create external table lesson4_10.customers
+(customer_id string,
+customer_unique_id string,
+customer_zip_code_prefix string,
+customer_city string,
+customer_state string)
+partitioned by ( p_date string )
+
+ROW FORMAT serde 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+
+WITH SERDEPROPERTIES ('field.delim' = ',')
+
+location "/user/hive/warehouse/lesson4_10.db/customers"
+
+tblproperties ("skip.header.line.count"="1")
+;
+
+overwrite table lesson4_10.customers where p_date = "20201101";
+
+msck REPAIR TABLE lesson4_10.customers;
+
+ALTER TABLE lesson4_10.customers change customer_id customer_id int;
+
+select * from lesson4_10.customers
+
+ALTER TABLE lesson4_10.customers SET TBLPROPERTIES('EXTERNAL'='TRUE');
+
+show create table lesson4_10.customers

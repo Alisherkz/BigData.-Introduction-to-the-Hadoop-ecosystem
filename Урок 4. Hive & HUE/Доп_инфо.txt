@@ -1,0 +1,8 @@
+Impala
+http://dwgeek.com/introduction-hadoop-impala-architecture.html/
+https://impala.apache.org/docs/build/html/topics/impala_concepts.html
+Hive
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Types
+https://data-flair.training/blogs/apache-hive-architecture/
+https://cwiki.apache.org/confluence/display/Hive/Design
+https://data-flair.training/blogs/bucketing-in-hive/
