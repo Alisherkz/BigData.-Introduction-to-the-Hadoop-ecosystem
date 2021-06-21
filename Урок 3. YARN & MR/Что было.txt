@@ -1,0 +1,69 @@
+				!!! Надо практиковатся 
+
+1. Зашел на кластер то есть написал
+
+> ssh -i id_rsa_gb.txt student10_16@novalocal -D localhost:1080 
+(Перезашел на новый кластер так как наш рабочий кластер рухнулся, перенаписал ключ и ip адрес, но логин тот же спасибо преподу.
+
+2. Теперь надо использовать браузер, по инструкций использовал Firefox по адресу
+
+> novalocal:8088/cluster
+открылся лог или типо такого. Еще надо разобратся.
+Заметил что мои действия записивается в терминале.
+
+3. Надо выполнить задачу. Идем по ссылке /opt/cloudera/parcels/CDH-5.16.2-1.cdh5.16.2.p0.8/lib/hadoop-mapreduce/
+Должен был появиться Jar файлы но и нет так как кластер рухнулся и в новом его нету. Работаем по воображению.
+Ну это для проверки. 
+
+4. По задаче надо найти число пи создовая Мапперы.
+Создаем переменную YARN_EXAMPLES = /opt/cloudera/parcels/CDH-5.16.2-1.cdh5.16.2.p0.8/lib/Hadoop-mapreduce/ Это типо мы привязываем
+ссылку к YARN_EXAMPLES. можем проверить через команду echo для достоверности, должен указать ссылку.
+
+5. Запускаем YARN с командой 
+> $ yarn jar $YARN_EXAMPLES/hadoop-mapreduce-examples.jar pi 16 1000000
+в моем случае создался 16 мапперов от 0 до 15. показывает все процессы типо сколько задач было 
+время выполнение, слоты, кол задач и т.д.
+В конце время выполнение и результат.
+
+ 		!!! По сути для одного компа это задача тяжко, по этому выполняем это на кластере, а в кластере
+		достаточно ОЗУ ЯДЕР и т.д.!!!
+
+6. Создаем файлы mapper.py и reducer.py и записываем код 
+для Маппера
+import sys
+for line in sys.stdin:
+for word in line.split(" "):
+print(word + "\t" + str(1))
+
+Для Редюса
+import sys
+prevkey = None
+cnt = 0
+for line in sys.stdin:
+if(len(line.strip().split("\t")) > 1):
+key, value = line.strip().split("\t")
+#print(key + "\t" + value);
+if key != prevkey and prevkey is not None:
+print(prevkey + "\t" + str(cnt))
+cnt = 0
+cnt = cnt + int(value)
+prevkey = key
+
+		!!!командой hdfs dfs -put сохраняем в hdfs
+
+Запускаем команду 
+> $ yarn jar /opt/cloudera/parcels/CDH-5.16.2-1.cdh5.16.2.p0.8/lib/hadoop-mapreduce/Hadoop-streamin.jar -input /user/USERNAME/text_example.txt -output result -file mapper.py -file reducer.py -mapper “python3 mapper.py” -reducer “python3 reducer.py”
+
+Каждый раз когда запускается команда система сразуже создает результативная папка.
+Надо каждый раз удалить даже если кластер не смог выполнить данную задачу, все равно он создаст папку.
+
+Для самых тупых команда удаление
+> hdfs dfs -rm -r filename
+
+В папке находятся несколько кол файлов. Кол файлов определяются стадиями Редюс.
+!!!Если выполнен успешно то обязательно будет файл _SUCCESS в папке. 
+
+ЕЩЕ раз для самых тупых посмотреть результаты файла
+> hdfs dfs -cat filename
+
+ 
